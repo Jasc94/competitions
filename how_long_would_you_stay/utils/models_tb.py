@@ -127,6 +127,10 @@ class modeller:
         Args:
             verb (bool, optional): [description]. Defaults to False.
         """
+
+        # Training model
+        self.model.fit(self.X_train, self.y_train)
+
         # Internal structure
         y_train_unique, y_train_counts = np.unique(self.y_train, return_counts=True)
         y_test_unique, y_test_counts = np.unique(self.y_test, return_counts=True)
@@ -172,8 +176,8 @@ class modeller:
         if verb > 3:
             print("-" * 50)
             print("\n-- Data structure --")
-            print("Train structure:", self.train_structure)
-            print("Test structure:", self.test_structure)
+            print(f"Train structure (n = {len(self.X_train)}):\n{self.train_structure}")
+            print(f"Test structure (n = {len(self.X_test)}):\n{self.test_structure}")
             
             
 
@@ -207,7 +211,7 @@ class modeller:
         except:
             return "Something went wrong. Please check all the settings"
 
-
+#####
 class ensembler:
     """[summary]
     """
@@ -227,12 +231,20 @@ class ensembler:
 
         # Metrics
         self.metrics = None
+        self.cms = None
     
     #########
     def load_data(self, X_train, X_test, y_train, y_test, features, kfold):
-        '''
-        Load the data for the models
-        '''
+        """[summary]
+
+        Args:
+            X_train ([type]): [description]
+            X_test ([type]): [description]
+            y_train ([type]): [description]
+            y_test ([type]): [description]
+            features ([type]): [description]
+            kfold ([type]): [description]
+        """
         self.X_train = X_train
         self.X_test = X_test
         self.y_train = y_train
@@ -241,37 +253,58 @@ class ensembler:
         self.kfold = kfold
 
     #########
-    def tester(self):
-        '''
-        It directly trains and tests the given models. It saves the relevant metrics as well
-        '''
-        metric_names = ["Test_score", "Train_score", "Test_score_drop", "Accuracy", "Precision", "Recall", "F1_score", "Confusion_matrix"]
+    def tester(self, verb = None):
+        """[summary]
+        """
+        metric_names = ["Test_score", "Train_score", "Test_score_drop", "Accuracy", "Precision", "Recall", "F1_score"]
+        # Scores
         test_scores = []
         train_scores = []
         test_score_drops = []
-        cms = []
+        # Metrics
         accuracies = []
         precisions = []
         recalls = []
         f1_scores = []
-        metrics_lists = [test_scores, train_scores, test_score_drops, accuracies, precisions, recalls, f1_scores, cms]
+        # List with all the scores and metrics for later use
+        metrics_lists = [test_scores, train_scores, test_score_drops, accuracies, precisions, recalls, f1_scores]
+        
+        # Confusion matrixes
+        self.cms = {}
 
         # Loop through all the models and train/test them and save the relevant metrics
-        for model in self.ml_models:
-            model.load_data(self.X_train, self.X_test, self.y_train, self.y_test, self.features, self.kfold)
-            model.ml_trainer()
-            model.ml_tester()
-            # Saving model metrics
-            test_scores.append(model.test_score)
-            train_scores.append(model.train_score)
-            test_score_drops.append((model.test_score - model.train_score) / model.train_score)
-            accuracies.append(model.accuracy)
-            precisions.append(model.precision)
-            recalls.append(model.recall)
-            f1_scores.append(model.f1_score)
-            cms.append(model.cm)
+        for modeller in self.modellers:
+            # Use the modeller object to train/test
+            modeller.load_data(self.X_train, self.X_test, self.y_train, self.y_test, self.features, self.kfold)
+            modeller.tester()
+            if verb > 1:
+                print(f"Model {str(modeller.model)} trained..")
 
-        # Stores all the metrics as a dataframe
+            # Save all relevant model metrics
+            # Scores
+            test_scores.append(modeller.test_score)
+            train_scores.append(modeller.train_score)
+            test_score_drops.append((modeller.test_score - modeller.train_score) / modeller.train_score)
+            if verb > 1:
+                print(f"Model {str(modeller.model)} scores calculated..")
+
+            # Metrics
+            accuracies.append(modeller.accuracy)
+            precisions.append(modeller.precision)
+            recalls.append(modeller.recall)
+            f1_scores.append(modeller.f1_score)
+            if verb > 1:
+                print(f"Model {str(modeller.model)} metrics calculated..")
+
+            # Confusion matrix will be saved in a dict
+            self.cms[str(modeller.model)] = modeller.cm
+            if verb:
+                print(f"Model {str(modeller.model)} is ready")
+                print("-" * 50)
+
+        # Create a dataframe with all the metrics (except for confusion matrix)
         self.metrics = pd.DataFrame(metrics_lists, index = metric_names, columns = self.model_names).T
+        # Sort the dataframe by Test Score
         self.metrics = self.metrics.sort_values(by = "Test_score", ascending = False)
-        #return self.metrics.sort_values(by = "Test_score", ascending = False)
+        if verb:
+            print(f"All models trained. Metrics are available")
