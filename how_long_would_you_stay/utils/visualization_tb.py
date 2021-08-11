@@ -98,3 +98,29 @@ class plotter:
         with sns.axes_style("white"):
             f, ax = plt.subplots(figsize = figsize)
             ax = sns.heatmap(correlation, annot = True, linewidths = .1, mask=mask, vmax=.3, square=True, cmap = "YlGnBu")
+
+        
+    @staticmethod
+    def train_val(modeller, figsize = (8, 8)):
+        fig = plt.figure(figsize = figsize)
+        
+        plt.plot(modeller.train_scores, label = "Train scores")
+        plt.plot(modeller.val_scores, label = "Test scores")
+
+        plt.legend()
+        plt.xticks(range(5))
+
+        return fig
+
+    @staticmethod
+    def confusion_matrix(modeller, labels, figsize = (12, 12)):
+        col_sum = modeller.cm.sum(axis = 0, keepdims = True)
+        col_rel = modeller.cm / col_sum
+
+        # To plot
+        fig = plt.figure(figsize = figsize)
+        sns.heatmap(col_rel, annot = True, linewidths = .1, square=True, cmap = "YlGnBu")
+
+        plt.xticks(np.arange(11) + .5, list(labels.values()), rotation = 90)
+
+        return fig

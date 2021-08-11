@@ -10,6 +10,9 @@ def load_data(data_path, variables_path):
     # Renaming columns
     df.columns = column_names["Description"].values()
 
+    # Setting the index
+    df = df.set_index("Case_ID registered in Hospital")
+
     return df
 
 class preprocessor:
