@@ -119,8 +119,11 @@ class plotter:
 
         # To plot
         fig = plt.figure(figsize = figsize)
-        sns.heatmap(col_rel, annot = True, linewidths = .1, square=True, cmap = "YlGnBu")
+        sns.heatmap(col_rel, annot = True, linewidths = .1, square=True, cmap = "YlGnBu", cbar = False)
 
         plt.xticks(np.arange(11) + .5, list(labels.values()), rotation = 90)
+
+        plt.xlabel("Predicted label")
+        plt.ylabel("Actual label")
 
         return fig

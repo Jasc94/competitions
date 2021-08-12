@@ -97,3 +97,12 @@ class preprocessor:
         }
 
         return stay
+
+    @staticmethod
+    def remove_outliers(df, variable, threshold, side = "right"):
+        if side == "right":
+            return df[df[variable] < threshold]
+        if side == "left":
+            return df[df[variable] < threshold]
+        else:
+            return "Please enter a valid option for 'side'"
