@@ -9,21 +9,27 @@ sns.set_theme()
 ##################################################### PLOTTERS #####################################################
 #####
 class plotter:
-    '''
-    Class to perform some exploratory analysis on the data
-    '''
+    """Class with useful plots
+    """
 
     ####
     def __n_rows(self, df, n_columns):
-        '''
-        It calculates the number of rows (for the axes) depending on the number of variables to plot and the columns we want for the figure.
-        args:
-        n_columns: number of columns
-        '''
+        """Private function to calculate the number of rows based on the dataframe columns and the number of columns the plot should have.
+
+        Args:
+            df (dataframe): Dataframe to plot
+            n_columns (int): number of columns the final plot should have
+
+        Returns:
+            int: number of rows that the plot will have
+        """
+        # Dataframe columns
         columns = list(df.columns)
 
+        # If the number of columns is even...
         if len(columns) % n_columns == 0:
             axes_rows = len(columns) // n_columns
+        # If it is odd...
         else:
             axes_rows = (len(columns) // n_columns) + 1
 
@@ -31,12 +37,16 @@ class plotter:
         
     ####
     def categorical(self, df, n_columns, figsize = (12, 12)):
-        '''
-        It creates a plot with multiple rows and columns. It returns a figure.
-        n_columns: number of columns for the row
-        kind: ("strip", "dist", "box")
-        figsize: size of the figure
-        '''
+        """Function to create a multiple axes plot based on the dataframe ahd the given structure
+
+        Args:
+            df (dataframe): Dataframe to plot
+            n_columns (int): number of columns the final plot should have
+            figsize (tuple, optional): Matplotlib figure size. Defaults to (12, 12).
+
+        Returns:
+            Object: Matplotlib figure with the distribution of each variable as the axes
+        """
         # Calculating the number of rows from number of columns and variables to plot
         n_rows_ = self.__n_rows(df, n_columns)
 
@@ -80,6 +90,13 @@ class plotter:
 
     @staticmethod
     def numerical(df, bins = 20, figsize = (14, 6)):
+        """It creates plots with box-plot and dist-plot for each variable in the dataframe
+
+        Args:
+            df (dataframe): Dataframe to plot
+            bins (int, optional): Number of bins for dist-plot. Defaults to 20.
+            figsize (tuple, optional): Matplotlib figure size. Defaults to (14, 6).
+        """
         for column in df.columns:
             fig, (ax1, ax2) = plt.subplots(1, 2, figsize = figsize)
 
@@ -90,6 +107,12 @@ class plotter:
 
     @staticmethod
     def correlation_matrix(correlation, figsize = (14, 14)):
+        """It creates a correlation matrix plot
+
+        Args:
+            correlation (dataframe): Correlation matrix dataframe
+            figsize (tuple, optional): Matplotlib figure size. Defaults to (14, 14).
+        """
         # Mask to remove duplicated values (from the diagonal up)
         mask = np.zeros_like(correlation)
         mask[np.triu_indices_from(mask)] = True
@@ -102,6 +125,15 @@ class plotter:
         
     @staticmethod
     def train_val(modeller, figsize = (8, 8)):
+        """It plots the train/test score progression of a model during cross validation
+
+        Args:
+            modeller (object): Modeller object. It can be found in models_tb.py file.
+            figsize (tuple, optional): Matplotlib figure size. Defaults to (8, 8).
+
+        Returns:
+            Object: Matplotlib figure with line-plot of train/test scores
+        """
         fig = plt.figure(figsize = figsize)
         
         plt.plot(modeller.train_scores, label = "Train scores")
@@ -114,6 +146,16 @@ class plotter:
 
     @staticmethod
     def confusion_matrix(modeller, labels, figsize = (12, 12)):
+        """It plots a heatmap representing the machine learning model confusion matrix.
+
+        Args:
+            modeller (object): Modeller object. It can be found in models_tb.py file.
+            labels (list): List of labels for the x-axis
+            figsize (tuple, optional): Matplotlib figure size. Defaults to (12, 12).
+
+        Returns:
+            Object: Matplotlib figure. Heatmap representing the machine learning model confusion matrix.
+        """
         col_sum = modeller.cm.sum(axis = 0, keepdims = True)
         col_rel = modeller.cm / col_sum
 

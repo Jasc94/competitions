@@ -9,10 +9,7 @@ from imblearn.over_sampling import SMOTE
 
 ##################################################### FUNCTIONS #####################################################
 class modeller:
-    """[summary]
-
-    Returns:
-        [type]: [description]
+    """Class with useful methods to train/test machine learning models and save the main metrics.
     """
     #########
     def __init__(self, model):
@@ -50,15 +47,15 @@ class modeller:
 
     #########
     def load_data(self, X_train, X_test, y_train, y_test, features, kfold):
-        """[summary]
+        """To load the data into the modeller object
 
         Args:
-            X_train ([type]): [description]
-            X_test ([type]): [description]
-            y_train ([type]): [description]
-            y_test ([type]): [description]
-            features ([type]): [description]
-            kfold ([type]): [description]
+            X_train (array/dataframe): Train set with the independent variables
+            X_test (array/dataframe): Test set with the independent variables
+            y_train (array/dataframe): Train set with the target variabl
+            y_test (array/dataframe): Test set with the target variable
+            features (list): [description]
+            kfold ([object): [description]
         """
         self.X_train = X_train
         self.X_test = X_test
@@ -69,10 +66,10 @@ class modeller:
 
     #########
     def trainer(self, verb = False):
-        """[summary]
+        """It trains the machine learning model using cross validation and stores train/test scores of each round
 
         Args:
-            verb (bool, optional): [description]. Defaults to False.
+            verb (bool, optional): The larger the value, the more info it will print about the training process. Defaults to False.
         """
         count = 1
 
@@ -122,10 +119,10 @@ class modeller:
 
     #########
     def tester(self, verb = False):
-        """[summary]
+        """It trains the model in the full training-set and tests it in the test-set. It gets relevant metrics including confusion matrix, recall, etc...
 
         Args:
-            verb (bool, optional): [description]. Defaults to False.
+            verb (bool, optional): The larger the value, the more info it will print about the training process. Defaults to False.
         """
 
         # Training model
@@ -183,26 +180,26 @@ class modeller:
 
     #########
     def predictor(self, to_predict):
-        """[summary]
+        """It uses the trained model to predict the label for new values.
 
         Args:
-            to_predict ([type]): [description]
+            to_predict (array): Array with same features used to train the model.
 
         Returns:
-            [type]: [description]
+            array: Predicted label
         """
         new_predictions = self.model.predict(to_predict)
         return new_predictions
 
     #########
     def saver(self, path):
-        """[summary]
+        """It saves the model as .pkl file.
 
         Args:
-            path ([type]): [description]
+            path (str): path to save the model
 
         Returns:
-            [type]: [description]
+            str: Succes/error message
         """
         try:
             joblib.dump(self.model, path + ".pkl")
@@ -213,7 +210,7 @@ class modeller:
 
 #####
 class ensembler:
-    """[summary]
+    """Class with useful methods to train/test several machine learning models at once and compare them
     """
     def __init__(self, models):
         # Models
@@ -235,15 +232,15 @@ class ensembler:
     
     #########
     def load_data(self, X_train, X_test, y_train, y_test, features, kfold):
-        """[summary]
+        """To load the data into the ensembler object
 
         Args:
-            X_train ([type]): [description]
-            X_test ([type]): [description]
-            y_train ([type]): [description]
-            y_test ([type]): [description]
-            features ([type]): [description]
-            kfold ([type]): [description]
+            X_train (array/dataframe): Train set with the independent variables
+            X_test (array/dataframe): Test set with the independent variables
+            y_train (array/dataframe): Train set with the target variabl
+            y_test (array/dataframe): Test set with the target variable
+            features (list): [description]
+            kfold ([object): [description]
         """
         self.X_train = X_train
         self.X_test = X_test
@@ -254,7 +251,9 @@ class ensembler:
 
     #########
     def tester(self, verb = None):
-        """[summary]
+        """It trains the models in the full training-set and tests it in the test-set. It gets relevant metrics including confusion matrix, recall, etc...
+
+        Models comparison is available as the "metrics" attribute after executing this method.
         """
         metric_names = ["Test_score", "Train_score", "Test_score_drop", "Accuracy", "Precision", "Recall", "F1_score"]
         # Scores
