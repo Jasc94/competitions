@@ -36,13 +36,14 @@ class plotter:
         return axes_rows
 
     ####
-    def scatter(self, df, target_variable = "SalePrice", n_columns = 3, figsize = (12, 12)):
+    def multi_axes(self, df, target_variable = "SalePrice", n_columns = 3, plot_type = "scatter", figsize = (12, 12)):
         """Function to create a multiple axes plot based on the dataframe ahd the given structure
 
         Args:
             df (dataframe): Dataframe to plot
             target_variable (str): Variable to plot in the y axis
             n_columns (int): number of columns the final plot should have
+            plot_type (str): Scatter for scatter plot, violin for violinplot. Defaults to scatter.
             figsize (tuple, optional): Matplotlib figure size. Defaults to (12, 12).
 
         Returns:
@@ -72,7 +73,10 @@ class plotter:
                 labels = x.unique()
 
                 # Plot
-                sns.scatterplot(x = x, y = target_variable, data = df, ax = axes[row][column])
+                if plot_type == "scatter":
+                    sns.scatterplot(x = x, y = target_variable, data = df, ax = axes[row][column])
+                if plot_type == "violin":
+                    sns.violinplot(x = x, y = target_variable, data = df, ax = axes[row][column])
 
                 # Some extras
                 axes[row][column].set_xticklabels(labels, rotation = 90)
